@@ -8,6 +8,7 @@ import com.closetly.data.ClothingRepository
 import com.closetly.ui.closet.ClosetViewModel
 import com.closetly.ui.stats.StatsViewModel
 import com.closetly.ui.today.TodayViewModel
+import com.closetly.ui.add.AddItemViewModel
 
 class AppViewModelFactory(
     private val app: Application
@@ -25,6 +26,8 @@ class AppViewModelFactory(
                 TodayViewModel(repo) as T
             modelClass.isAssignableFrom(StatsViewModel::class.java) ->
                 StatsViewModel(repo) as T
+            modelClass.isAssignableFrom(AddItemViewModel::class.java) ->
+                AddItemViewModel(repo) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }
