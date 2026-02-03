@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.closetly.ClosetlyApp
 import com.closetly.data.ClothingRepository
+import com.closetly.ui.add.AddItemViewModel
 import com.closetly.ui.closet.ClosetViewModel
 import com.closetly.ui.stats.StatsViewModel
 import com.closetly.ui.today.TodayViewModel
-import com.closetly.ui.add.AddItemViewModel
 
 class AppViewModelFactory(
     private val app: Application

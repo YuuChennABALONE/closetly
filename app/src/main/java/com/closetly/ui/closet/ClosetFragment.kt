@@ -33,7 +33,11 @@ class ClosetFragment : Fragment() {
         vm = ViewModelProvider(this, AppViewModelFactory(requireActivity().application))
             .get(ClosetViewModel::class.java)
 
-        adapter = ClothingAdapter()
+        adapter = ClothingAdapter { item ->
+            val i = Intent(requireContext(), AddItemActivity::class.java)
+            i.putExtra("item_id", item.id)
+            startActivity(i)
+        }
         binding.recycler.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.recycler.adapter = adapter
 

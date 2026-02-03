@@ -12,4 +12,6 @@ class ClothingRepository(private val dao: ClothingDao) {
 
     suspend fun add(item: ClothingItem): Long = dao.insert(item)
     suspend fun update(item: ClothingItem) = dao.update(item)
+    suspend fun delete(item: ClothingItem) = dao.delete(item)
+    suspend fun getById(id: Long): ClothingItem? = dao.getById(id)
 }

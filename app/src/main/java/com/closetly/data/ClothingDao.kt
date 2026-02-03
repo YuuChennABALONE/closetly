@@ -15,6 +15,9 @@ interface ClothingDao {
     @Query("SELECT * FROM items ORDER BY createdAt DESC")
     fun observeAll(): Flow<List<ClothingItem>>
 
+    @Query("SELECT * FROM items WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Long): ClothingItem?
+
     @Query("SELECT COUNT(*) FROM items")
     fun observeCount(): Flow<Int>
 
