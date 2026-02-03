@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Closetly</string>
+    <string name="nav_closet">衣柜</string>
+    <string name="nav_today">今天穿什么</string>
+    <string name="nav_stats">统计</string>
+
+    <string name="add_item">添加衣物</string>
+    <string name="pick_photo">选择照片</string>
+    <string name="save">保存</string>
+    <string name="category">类别</string>
+    <string name="color">颜色</string>
+
+    <string name="search_hint">搜索：黑色外套 / 白衬衫 …</string>
+
+    <string name="occasion_daily">日常</string>
+    <string name="occasion_work">上班</string>
+    <string name="occasion_date">约会</string>
+
+    <string name="temp_cold">冷</string>
+    <string name="temp_mild">适中</string>
+    <string name="temp_hot">热</string>
+
+    <string name="generate">生成搭配</string>
+    <string name="mark_worn">标记已穿</string>
+    <string name="save_look">保存为套装</string>
+
+    <string name="not_enough_items">当前类别衣物不足，先去“衣柜”里添加一些吧。</string>
+</resources>
