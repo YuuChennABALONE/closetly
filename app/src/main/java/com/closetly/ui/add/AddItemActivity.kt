@@ -13,6 +13,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModelProvider
 import com.closetly.data.ClothingItem
 import com.closetly.databinding.ActivityAddItemBinding
@@ -57,20 +58,53 @@ class AddItemActivity : AppCompatActivity() {
         binding.categoryEdit.setAdapter(VectorCategoryAdapter(this, idx))
 
         // 图片点击取色
-        binding.preview.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
-                val bmp = previewBitmap ?: return@setOnTouchListener false
-                val (bx, by) = mapTouchToBitmap(
-                    event.x, event.y,
-                    binding.preview.width, binding.preview.height,
-                    bmp.width, bmp.height
-                )
-                val colors = ColorUtils.extractDominantColors(bmp, bx, by)
-                colors.forEach { c -> addColorChip(ColorUtils.nearestColorName(c.rgb)) }
-                true
-            } else {
-                false
+        
+binding.preview.isClickable = true
+        binding.preview.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    // ScrollView 里点图容易被当成滚动手势，这里禁止父布局拦截
+                    v.parent?.requestDisallowInterceptTouchEvent(true)
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    if (binding.preview.width == 0 || binding.preview.height == 0) {
+                        Toast.makeText(this, "图片尚未加载完成，请稍等再点一下", Toast.LENGTH_SHORT).show()
+                        return@setOnTouchListener true
+                    }
+
+                    // 兼容：有些机型 ImageDecoder 解码失败会导致 previewBitmap 为空
+                    val bmp = previewBitmap
+                        ?: runCatching { binding.preview.drawable?.toBitmap() }.getOrNull()
+                            ?.also { previewBitmap = it }
+
+                    if (bmp == null) {
+                        Toast.makeText(this, "取色失败：没有拿到图片像素，请重新选择照片", Toast.LENGTH_SHORT).show()
+                        return@setOnTouchListener true
+                    }
+
+                    val (bx, by) = mapTouchToBitmap(
+                        event.x, event.y,
+                        binding.preview.width, binding.preview.height,
+                        bmp.width, bmp.height
+                    )
+
+                    val colors = ColorUtils.extractDominantColors(bmp, bx, by)
+                    if (colors.isEmpty()) {
+                        Toast.makeText(this, "未识别到主色，请换个区域再点一次", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val names = colors.map { ColorUtils.nearestColorName(it.rgb) }.distinct()
+                        names.forEach { addColorChip(it) }
+                        Toast.makeText(this, "已识别：${names.joinToString("、")}", Toast.LENGTH_SHORT).show()
+                    }
+
+                    v.performClick()
+                    true
+                }
+                else -> false
             }
+        }
+
         }
 
         binding.btnPick.setOnClickListener {
@@ -244,14 +278,19 @@ class AddItemActivity : AppCompatActivity() {
         binding.colorChips.addView(chip)
     }
 
-    private fun openPaletteDialog() {
-        val items = Colors.all.filter { it != "多色" }.toTypedArray()
-        AlertDialog.Builder(this)
-            .setTitle("选择颜色（可重复打开多选）")
-            .setItems(items) { _, which ->
-                addColorChip(items[which])
-            }
-            .setNegativeButton("关闭", null)
+    
+private fun openPaletteDialog() {
+        val view = layoutInflater.inflate(com.closetly.R.layout.dialog_color_palette, null)
+        val rv = view.findViewById<androidx.recyclerview.widget.RecyclerView>(com.closetly.R.id.recycler)
+        rv.layoutManager = androidx.recyclerview.widget.GridLayoutManager(this, 6)
+        rv.adapter = com.closetly.ui.common.ColorPaletteAdapter(com.closetly.ui.common.Colors.palette) { opt ->
+            addColorChip(opt.name)
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("选择颜色（点色块添加，可重复添加多次）")
+            .setView(view)
+            .setPositiveButton("关闭", null)
             .show()
     }
 
@@ -291,6 +330,7 @@ class AddItemActivity : AppCompatActivity() {
                 val src = ImageDecoder.createSource(contentResolver, uri)
                 ImageDecoder.decodeBitmap(src) { decoder, _, _ ->
                     decoder.isMutableRequired = false
+                    decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
                 }
             } else {
                 @Suppress("DEPRECATION")

@@ -2,6 +2,7 @@ package com.closetly.ui.add
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import com.closetly.ui.common.Colors
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -97,33 +98,15 @@ object ColorUtils {
      * 你后续想更精细（比如分深浅），也可以扩展 palette。
      */
     fun nearestColorName(rgb: Int): String {
-        val palette = listOf(
-            "黑" to Color.rgb(0,0,0),
-            "白" to Color.rgb(255,255,255),
-            "灰" to Color.rgb(140,140,140),
-            "深灰" to Color.rgb(80,80,80),
-            "米白" to Color.rgb(245,245,235),
-            "红" to Color.rgb(220,20,60),
-            "酒红" to Color.rgb(128,0,32),
-            "橙" to Color.rgb(255,140,0),
-            "黄" to Color.rgb(255,215,0),
-            "绿" to Color.rgb(34,139,34),
-            "军绿" to Color.rgb(85,107,47),
-            "蓝" to Color.rgb(30,144,255),
-            "藏蓝" to Color.rgb(25,25,112),
-            "牛仔蓝" to Color.rgb(40,70,120),
-            "紫" to Color.rgb(138,43,226),
-            "粉" to Color.rgb(255,105,180),
-            "棕" to Color.rgb(139,69,19),
-            "驼色" to Color.rgb(210,180,140),
-            "卡其" to Color.rgb(195,176,145)
-        )
-        var best = palette[0].first
-        var bestD = dist(rgb, palette[0].second)
-        for (i in 1 until palette.size) {
-            val d = dist(rgb, palette[i].second)
-            if (d < bestD) { bestD = d; best = palette[i].first }
+        val pal = Colors.palette
+        var best = pal.first().name
+        var bestD = dist(rgb, pal.first().rgb)
+        for (i in 1 until pal.size) {
+            val d = dist(rgb, pal[i].rgb)
+            if (d < bestD) { bestD = d; best = pal[i].name }
         }
+        return best
+    }
         return best
     }
 }
